@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Розклад пар — 1 семестр</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f7f7f7;
+      color: #222;
+    }
+    h1 {
+      margin-bottom: 5px;
+    }
+    .controls {
+      margin: 15px 0;
+    }
+    button {
+      padding: 6px 12px;
+      margin-right: 10px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+    }
+    .day {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .day h3 {
+      margin-top: 0;
+      font-size: 18px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 4px;
+    }
+    .pair {
+      margin: 8px 0;
+      padding: 6px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+    }
+    .pair .time {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .pair .type {
+      font-size: 13px;
+      font-style: italic;
+      color: #555;
+    }
+    .empty {
+      font-style: italic;
+      color: #999;
+    }
+    @media print {
+      body { background: #fff; }
+      .controls { display: none; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Розклад пар — 1 семестр</h1>
+  <div class="controls">
+    <button id="numBtn">Чисельник</button>
+    <button id="denBtn">Знаменник</button>
+    <button id="printBtn">Завантажити PDF</button>
+  </div>
+  <div class="grid" id="days"></div>
+
+  <script>
+    const WEEK = { NUMERATOR: 'Чисельник', DENOMINATOR: 'Знаменник' };
+
+    const SCHEDULE = [
+      {
+        day: 'Понеділок',
+        items: [
+          { pair: 1,
+            numerator: { title: 'Фізика', teachers: 'Коломієць О.В.', room: '139 Гол. н.к.', type: 'Лекція' },
+            denominator: { title: 'Фізика', teachers: 'Коломієць О.В.', room: '139 Гол. н.к.', type: 'Практична' }
+          },
+          { pair: 2, both: { title: 'Система нормативно-конструкторської документації в будівництві', teachers: 'Титаренко Р.Ю.', room: '227 II н.к.', type: 'Лекція' } },
+          { pair: 3,
+            numerator: { title: 'Теплогазопостачання та вентиляція', teachers: 'Гулай Б.І.', room: '401 II н.к.', type: 'Лекція' },
+            denominator: { title: 'Теплогазопостачання та вентиляція', teachers: 'Гулай Б.І.', room: '401 II н.к.', type: 'Лабораторна' }
+          },
+        ]
+      },
+      {
+        day: 'Вівторок',
+        items: [
+          { pair: 1, both: null },
+          { pair: 2, both: null },
+          { pair: 3,
+            numerator: { title: 'Інженерна геологія і основи механіки ґрунтів', teachers: 'Топилко Н.І.', room: '217 II н.к.', type: 'Лекція' },
+            denominator: null
+          },
+          { pair: 4,
+            both: { title: 'Інженерна геологія і основи механіки ґрунтів', teachers: 'Петровська Н.І., Топилко Н.І.', room: '310 II н.к.', type: 'Лабораторна' }
+          },
+        ]
+      },
+      {
+        day: 'Середа',
+        items: [
+          { pair: 1,
+            numerator: { title: 'Система нормативно-конструкторської документації в будівництві', teachers: 'Титаренко Р.Ю.', room: '224а II н.к.', type: 'Практична' },
+            denominator: { title: 'Фізика', teachers: 'Коломієць О.В., Кульчицький А.Д.', room: 'ел.2лаб Гол. н.к., мол.2лаб Гол. н.к., опт.2лаб Гол. н.к.', type: 'Лабораторна' }
+          },
+          { pair: 2, both: { title: 'Вища математика', teachers: 'Каленюк П.І.', room: '225 II н.к.', type: 'Лекція' } },
+          { pair: 3,
+            numerator: { title: 'Вища математика', teachers: 'Каленюк П.І.', room: '225 II н.к.', type: 'Практична' },
+            denominator: null
+          },
+        ]
+      },
+      {
+        day: 'Четвер',
+        items: [
+          { pair: 1, both: { title: 'Теплогазопостачання та вентиляція', teachers: 'Гулай Б.І.', room: '409 II н.к.', type: 'Лекція' } },
+          { pair: 2, both: { title: 'Теплогазопостачання та вентиляція', teachers: 'Гулай Б.І.', room: '409 II н.к.', type: 'Лабораторна' } },
+        ]
+      },
+      {
+        day: 'Пʼятниця',
+        items: [
+          { pair: 1, both: null },
+          { pair: 2, both: { title: 'Опір матеріалів', teachers: 'Палюх В.М.', room: '112а II н.к.', type: 'Лекція' } },
+          { pair: 3,
+            numerator: { title: 'Опір матеріалів', teachers: 'Ткач Р.О.', room: '112а II н.к.', type: 'Практична' },
+            denominator: { title: 'Опір матеріалів', teachers: 'Ткач Р.О., Василів Б.Д.', room: '112 II н.к.', type: 'Лабораторна' }
+          },
+          { pair: 4, both: { title: 'Опір матеріалів', teachers: 'Ткач Р.О., Василів Б.Д.', room: '112 II н.к.', type: 'Лабораторна' } },
+        ]
+      }
+    ];
+
+    const daysRoot = document.getElementById('days');
+
+    function makePairRow(pair, entry){
+      const wrap = document.createElement('div');
+      wrap.className = 'pair';
+      const time = document.createElement('div');
+      time.className = 'time';
+      time.textContent = `Пара ${pair}`;
+      const name = document.createElement('div');
+      name.textContent = entry.title;
+      const meta = document.createElement('div');
+      meta.textContent = `${entry.teachers}${entry.room ? ' • ' + entry.room : ''}`;
+      const type = document.createElement('div');
+      type.className = 'type';
+      type.textContent = entry.type || '';
+      wrap.append(time, name, meta, type);
+      return wrap;
+    }
+
+    function render(week){
+      daysRoot.innerHTML = '';
+      for(const d of SCHEDULE){
+        const dayEl = document.createElement('div');
+        dayEl.className = 'day';
+        const h = document.createElement('h3');
+        h.textContent = d.day;
+        const list = document.createElement('div');
+        for(const it of d.items){
+          const entry = it.both ?? (week === WEEK.NUMERATOR ? it.numerator : it.denominator);
+          if(!entry){ continue; }
+          list.appendChild(makePairRow(it.pair, entry));
+        }
+        if(list.children.length===0){
+          const empty = document.createElement('div');
+          empty.className = 'pair empty';
+          empty.textContent = 'Пари відсутні';
+          list.appendChild(empty);
+        }
+        dayEl.append(h,list);
+        daysRoot.appendChild(dayEl);
+      }
+    }
+
+    render(WEEK.NUMERATOR);
+
+    document.getElementById('numBtn').addEventListener('click', ()=>render(WEEK.NUMERATOR));
+    document.getElementById('denBtn').addEventListener('click', ()=>render(WEEK.DENOMINATOR));
+    document.getElementById('printBtn').addEventListener('click', ()=>window.print());
+  </script>
+</body>
+</html>
