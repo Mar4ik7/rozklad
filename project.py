@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 # 🔑 Встав свій токен!
-TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TOKEN = "8306087006:AAG3JEJGLgk13AW_MGnhVw0cU_4o9_yfMRE"
 
 # Повний розклад
 rozklad = {
